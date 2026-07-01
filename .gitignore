@@ -1,0 +1,21 @@
+# --- Backend ---
+backend/.env
+backend/database/*.db
+backend/database/__pycache__/
+backend/uploads/*
+!backend/uploads/.gitkeep
+backend/vector_db/*
+!backend/vector_db/.gitkeep
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# --- OS / editor ---
+.DS_Store
+.vscode/
+.idea/
+
+# --- Docker ---
+*.log

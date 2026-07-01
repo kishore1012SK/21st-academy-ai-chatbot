@@ -1,0 +1,57 @@
+version: "3.9"
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: academy-ollama
+    restart: unless-stopped
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    # On first boot run once:
+    #   docker exec -it academy-ollama ollama pull llama3
+    #   docker exec -it academy-ollama ollama pull nomic-embed-text
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: academy-backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+    volumes:
+      - backend_db:/app/database
+      - backend_uploads:/app/uploads
+      - backend_vectors:/app/vector_db
+    depends_on:
+      - ollama
+    ports:
+      - "8000:8000"
+
+  nginx:
+    image: nginx:alpine
+    container_name: academy-nginx
+    restart: unless-stopped
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./career-mapping-workshop:/usr/share/nginx/html:ro
+    ports:
+      - "80:80"
+      # - "443:443"   # enable once you mount TLS certs below
+      # volumes:
+      #   - ./nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      - backend
+
+volumes:
+  ollama_data:
+  backend_db:
+  backend_uploads:
+  backend_vectors:

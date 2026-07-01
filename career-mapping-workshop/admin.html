@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — 21st Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* Styling matching deep crimson + near-black theme */
+    :root {
+      --crimson: #9B1C1C;
+      --crimson-dark: #7A1515;
+      --crimson-light: #C0392B;
+      --near-black: #111111;
+      --dark-bg: #1a1a1a;
+      --mid-bg: #242424;
+      --off-white: #F8F5F0;
+      --white: #ffffff;
+      --text-muted: #888888;
+      --border: rgba(255,255,255,0.08);
+      --radius: 12px;
+      --radius-sm: 6px;
+      --shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--near-black);
+      color: var(--off-white);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    button, input, textarea, select {
+      font-family: inherit;
+    }
+
+    /* TOASTS */
+    .toast-container {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 9999;
+    }
+    .toast {
+      background: var(--mid-bg);
+      color: var(--white);
+      padding: 16px 24px;
+      border-radius: var(--radius-sm);
+      border-left: 4px solid var(--crimson);
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+      min-width: 280px;
+      animation: slideIn 0.3s ease forwards;
+    }
+    .toast.success { border-left-color: #2ecc71; }
+    .toast.error { border-left-color: var(--crimson-light); }
+    @keyframes slideIn {
+      from { transform: translateX(120%); }
+      to { transform: translateX(0); }
+    }
+
+    /* LOGIN SCREEN */
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .login-card {
+      background: var(--dark-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .logo-container {
+      margin-bottom: 24px;
+      background: var(--white);
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      display: inline-block;
+    }
+    .logo-container img {
+      height: 48px;
+      object-fit: contain;
+    }
+    .login-title {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+    .login-subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .form-control {
+      width: 100%;
+      background: var(--mid-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      color: var(--white);
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--crimson-light);
+    }
+    .btn-primary {
+      width: 100%;
+      background: var(--crimson);
+      color: var(--white);
+      font-weight: 600;
+      font-size: 14px;
+      padding: 14px;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .btn-primary:hover {
+      background: var(--crimson-light);
+    }
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    /* DASHBOARD CONTAINER */
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+    }
+    
+    /* SIDEBAR */
+    .sidebar {
+      background: var(--dark-bg);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+    }
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 40px;
+    }
+    .sidebar-header span {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: -0.5px;
+    }
+    .sidebar-header span span {
+      color: var(--crimson-light);
+    }
+    .sidebar-nav {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-grow: 1;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: background 0.3s, color 0.3s;
+    }
+    .nav-item:hover, .nav-item.active {
+      background: rgba(155, 28, 28, 0.15);
+      color: var(--white);
+    }
+    .nav-item.active {
+      border-left: 3px solid var(--crimson);
+      font-weight: 600;
+    }
+    .sidebar-footer {
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+    }
+    .btn-logout {
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s;
+    }
+    .btn-logout:hover {
+      background: rgba(255,255,255,0.05);
+      color: var(--white);
+    }
+
+    /* MAIN CONTENT */
+    .main-content {
+      padding: 40px;
+      overflow-y: auto;
+      max-height: 100vh;
+    }
+    .content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+    .content-title {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 24px;
+    }
+    .content-subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    /* TABLES & VIEWS */
+    .dashboard-card {
+      background: var(--dark-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    .card-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 16px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    /* TABLE */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    th {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 12px 16px;
+      border-bottom: 2px solid var(--border);
+    }
+    td {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .btn-action {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--off-white);
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      margin-right: 6px;
+      transition: background 0.3s;
+    }
+    .btn-action:hover {
+      background: rgba(255,255,255,0.05);
+    }
+    .btn-action.delete:hover {
+      background: rgba(155, 28, 28, 0.2);
+      border-color: var(--crimson-light);
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-container {
+      background: var(--dark-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .btn-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .modal-body {
+      padding: 24px;
+      flex-grow: 1;
+    }
+    .modal-footer {
+      padding: 20px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--off-white);
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+    }
+    
+    /* FILE UPLOAD DRAG/DROP */
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 40px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.3s;
+      margin-bottom: 24px;
+    }
+    .upload-zone:hover {
+      border-color: var(--crimson-light);
+    }
+    .upload-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOAST NOTIFICATIONS -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- LOGIN TAB -->
+  <div id="loginView" class="login-container">
+    <div class="login-card">
+      <div class="logo-container">
+        <!-- Logo fits crimson theme -->
+        <img src="images/logo.jpg" alt="21st Academy">
+      </div>
+      <h2 class="login-title">Admin Access</h2>
+      <p class="login-subtitle">Sign in to manage chatbot resources and details.</p>
+      
+      <form id="loginForm">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="email" class="form-control" placeholder="admin@21stacademy.in" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn-primary">Authenticate</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MAIN DASHBOARD -->
+  <div id="dashboardView" class="dashboard-layout hidden">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        🎓 <span>21st <span>Academy</span></span>
+      </div>
+      <ul class="sidebar-nav">
+        <li class="nav-item active" onclick="switchTab('courses')">📚 Course Catalog</li>
+        <li class="nav-item" onclick="switchTab('workshop')">📅 Workshop Settings</li>
+        <li class="nav-item" onclick="switchTab('documents')">📁 Knowledge RAG</li>
+      </ul>
+      <div class="sidebar-footer">
+        <button class="btn-logout" onclick="logout()">Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- CONTENT WRAPPER -->
+    <main class="main-content">
+      
+      <!-- COURSES VIEW -->
+      <section id="coursesTab" class="tab-content">
+        <div class="content-header">
+          <div>
+            <h2 class="content-title">Course Catalog</h2>
+            <p class="content-subtitle">Manage curriculum modules, salaries, projects and roadmaps.</p>
+          </div>
+          <button class="btn-primary" style="width: auto; padding: 10px 20px;" onclick="openCourseModal()">+ Add Course</button>
+        </div>
+
+        <div class="dashboard-card">
+          <table id="coursesTable">
+            <thead>
+              <tr>
+                <th>Course Name</th>
+                <th>Duration</th>
+                <th>Fees</th>
+                <th>Prerequisites</th>
+                <th>Certification</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Populate dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- WORKSHOP VIEW -->
+      <section id="workshopTab" class="tab-content hidden">
+        <div class="content-header">
+          <div>
+            <h2 class="content-title">Workshop Details</h2>
+            <p class="content-subtitle">Update schedule and location parameters for the dynamic chatbot answers.</p>
+          </div>
+        </div>
+
+        <div class="dashboard-card">
+          <form id="workshopForm">
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Workshop Date</label>
+                <input type="text" id="wsDate" class="form-control" placeholder="27th June 2026">
+              </div>
+              <div class="form-group">
+                <label>Reporting Time</label>
+                <input type="text" id="wsTime" class="form-control" placeholder="9:30 AM">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Venue (Physical Location)</label>
+              <input type="text" id="wsVenue" class="form-control" placeholder="Poonamalle, Chennai">
+            </div>
+            <div class="form-group">
+              <label>Registration Process Description</label>
+              <textarea id="wsRegProc" class="form-control" style="height: 80px;" placeholder="Free, via Google Form on website or direct walk-in."></textarea>
+            </div>
+            <div class="form-group">
+              <label>Target Audience / Eligibility</label>
+              <input type="text" id="wsEligibility" class="form-control" placeholder="All graduates, job seekers and professionals.">
+            </div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Contact Phone</label>
+                <input type="text" id="wsPhone" class="form-control" placeholder="+91 99 44 74 7090">
+              </div>
+              <div class="form-group">
+                <label>WhatsApp Number</label>
+                <input type="text" id="wsWhatsapp" class="form-control" placeholder="+91 99 44 74 7090">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Academy Email Address</label>
+              <input type="email" id="wsEmail" class="form-control" placeholder="admin@21stacademy.in">
+            </div>
+            <div class="form-group">
+              <label>Google Maps Location Link</label>
+              <input type="url" id="wsMaps" class="form-control" placeholder="https://maps.google.com/?q=Poonamalle,Chennai">
+            </div>
+            <div class="form-group">
+              <label>Official Academy Website</label>
+              <input type="url" id="wsWebsite" class="form-control" placeholder="https://21stacademy.in">
+            </div>
+            <button type="submit" class="btn-primary" style="width: auto; padding: 12px 30px;">Save Workshop Config</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- DOCUMENTS VIEW -->
+      <section id="documentsTab" class="tab-content hidden">
+        <div class="content-header">
+          <div>
+            <h2 class="content-title">Knowledge Index (RAG)</h2>
+            <p class="content-subtitle">Upload brochures, syllabi, or policies. The chatbot embeds them locally to retrieve references.</p>
+          </div>
+        </div>
+
+        <div class="upload-zone" onclick="document.getElementById('fileUploadInput').click()">
+          <div class="upload-icon">📁</div>
+          <h3>Select file to import</h3>
+          <p style="color: var(--text-muted); font-size: 13px; margin-top: 4px;">Supports PDF, DOCX, PPT, PPTX, TXT, CSV, XLS, XLSX up to 20MB</p>
+          <input type="file" id="fileUploadInput" style="display:none;" onchange="uploadFile(this.files[0])">
+        </div>
+
+        <div class="dashboard-card">
+          <h3 class="card-title">Active Knowledge Base Files</h3>
+          <table id="documentsTable">
+            <thead>
+              <tr>
+                <th>Filename</th>
+                <th>Filetype</th>
+                <th>Upload Date</th>
+                <th>Chunks Indexed</th>
+                <th>Uploaded By</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Populate dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- COURSE MODAL -->
+  <div class="modal-overlay" id="courseModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Add Course</h3>
+        <button class="btn-close" onclick="closeCourseModal()">✕</button>
+      </div>
+      <form id="courseForm">
+        <input type="hidden" id="courseId">
+        <div class="modal-body">
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Course Name *</label>
+              <input type="text" id="cName" class="form-control" placeholder="e.g. AI Engineering" required>
+            </div>
+            <div class="form-group">
+              <label>Duration</label>
+              <input type="text" id="cDuration" class="form-control" placeholder="e.g. 6 Months">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Course Description *</label>
+            <textarea id="cDesc" class="form-control" style="height: 70px;" placeholder="Outline the main focus of this program..." required></textarea>
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Fees</label>
+              <input type="text" id="cFees" class="form-control" placeholder="e.g. Rs. 45,000">
+            </div>
+            <div class="form-group">
+              <label>Eligibility Criteria</label>
+              <input type="text" id="cEligibility" class="form-control" placeholder="e.g. Graduates / Students">
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Prerequisites</label>
+              <input type="text" id="cPrereq" class="form-control" placeholder="e.g. Basic programming knowledge">
+            </div>
+            <div class="form-group">
+              <label>Expected Entry Salary</label>
+              <input type="text" id="cSalary" class="form-control" placeholder="e.g. Rs. 6 - 15 LPA">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Learning Roadmap</label>
+            <textarea id="cRoadmap" class="form-control" style="height: 60px;" placeholder="Step 1 -> Step 2 -> Step 3..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Syllabus Modules (semicolon separated)</label>
+            <textarea id="cModules" class="form-control" style="height: 60px;" placeholder="Module 1: Basic Python; Module 2: Machine learning..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Specific Topics Covered (comma separated)</label>
+            <input type="text" id="cTopics" class="form-control" placeholder="Python, NumPy, PyTorch, LangChain...">
+          </div>
+          <div class="form-group">
+            <label>Projects Included</label>
+            <textarea id="cProjects" class="form-control" style="height: 60px;" placeholder="e.g. Building an automated Multi-Agent Dev Team, Chatbot..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Internship details</label>
+            <input type="text" id="cInternship" class="form-control" placeholder="e.g. 2 Months corporate internship">
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Certification Offered</label>
+              <input type="text" id="cCert" class="form-control" placeholder="e.g. Certified AI Developer">
+            </div>
+            <div class="form-group">
+              <label>Placement Support</label>
+              <input type="text" id="cPlacement" class="form-control" placeholder="e.g. direct placements, mock sessions">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Career Opportunities</label>
+            <input type="text" id="cCareer" class="form-control" placeholder="e.g. AI Engineer, NLP Expert">
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Key Tools Used</label>
+              <input type="text" id="cTools" class="form-control" placeholder="e.g. Git, Docker, Jupyter">
+            </div>
+            <div class="form-group">
+              <label>Software Required</label>
+              <input type="text" id="cSoftware" class="form-control" placeholder="e.g. Python 3.10+, VS Code">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Industry Applications</label>
+            <input type="text" id="cIndustry" class="form-control" placeholder="e.g. Health analytics, customer bots">
+          </div>
+          <div class="form-group">
+            <label>Frequently Asked Questions (FAQ list)</label>
+            <textarea id="cFaqs" class="form-control" style="height: 80px;" placeholder="Q: What if I miss a class? A: Video recordings are available."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="closeCourseModal()">Cancel</button>
+          <button type="submit" class="btn-primary" style="width: auto;">Save Course</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CORE LOGIC JS -->
+  <script>
+    // Intelligent host discovery
+    const API_BASE_URL = window.location.origin.includes('5500') 
+      ? 'http://localhost:8000/api' 
+      : `${window.location.origin}/api`;
+
+    function getHeaders() {
+      const token = localStorage.getItem('admin_token');
+      return {
+        'Content-Type': 'application/json',
+        'Authorization': token ? `Bearer ${token}` : ''
+      };
+    }
+
+    // TOASTS
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerText = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // CHECK AUTH
+    function checkAuth() {
+      const token = localStorage.getItem('admin_token');
+      if (token) {
+        document.getElementById('loginView').classList.add('hidden');
+        document.getElementById('dashboardView').classList.remove('hidden');
+        // Initial data fetches
+        fetchCourses();
+        fetchWorkshop();
+        fetchDocuments();
+      } else {
+        document.getElementById('loginView').classList.remove('hidden');
+        document.getElementById('dashboardView').classList.add('hidden');
+      }
+    }
+
+    // LOGIN
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (res.ok && data.access_token) {
+          localStorage.setItem('admin_token', data.access_token);
+          showToast('Login successful!');
+          checkAuth();
+        } else {
+          showToast(data.detail || 'Authentication failed.', 'error');
+        }
+      } catch (err) {
+        showToast('Could not connect to backend server.', 'error');
+      }
+    });
+
+    // LOGOUT
+    function logout() {
+      localStorage.removeItem('admin_token');
+      showToast('Logged out.');
+      checkAuth();
+    }
+
+    // TABS
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById(`${tabId}Tab`).classList.remove('hidden');
+      event.target.classList.add('active');
+    }
+
+    // --- COURSES SECTION ---
+    async function fetchCourses() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/courses`);
+        const courses = await res.json();
+        const tbody = document.querySelector('#coursesTable tbody');
+        tbody.innerHTML = '';
+        if (courses.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No courses registered yet.</td></tr>';
+          return;
+        }
+        courses.forEach(c => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong>${c.name}</strong></td>
+            <td>${c.duration || 'N/A'}</td>
+            <td>${c.fees || 'N/A'}</td>
+            <td>${c.prerequisites || 'None'}</td>
+            <td>${c.certification || 'N/A'}</td>
+            <td>
+              <button class="btn-action" onclick="editCourse('${c.id}')">Edit</button>
+              <button class="btn-action delete" onclick="deleteCourse('${c.id}')">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        showToast('Failed to load courses.', 'error');
+      }
+    }
+
+    // COURSE SAVE (ADD OR EDIT)
+    document.getElementById('courseForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('courseId').value;
+      const courseData = {
+        name: document.getElementById('cName').value,
+        description: document.getElementById('cDesc').value,
+        duration: document.getElementById('cDuration').value || null,
+        fees: document.getElementById('cFees').value || null,
+        eligibility: document.getElementById('cEligibility').value || null,
+        prerequisites: document.getElementById('cPrereq').value || null,
+        learning_roadmap: document.getElementById('cRoadmap').value || null,
+        modules: document.getElementById('cModules').value || null,
+        topics_covered: document.getElementById('cTopics').value || null,
+        projects_included: document.getElementById('cProjects').value || null,
+        internship_details: document.getElementById('cInternship').value || null,
+        certification: document.getElementById('cCert').value || null,
+        placement_support: document.getElementById('cPlacement').value || null,
+        career_opportunities: document.getElementById('cCareer').value || null,
+        expected_salary: document.getElementById('cSalary').value || null,
+        tools_used: document.getElementById('cTools').value || null,
+        software_required: document.getElementById('cSoftware').value || null,
+        industry_applications: document.getElementById('cIndustry').value || null,
+        faqs: document.getElementById('cFaqs').value || null,
+      };
+
+      const url = id ? `${API_BASE_URL}/courses/${id}` : `${API_BASE_URL}/courses`;
+      const method = id ? 'PUT' : 'POST';
+
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: getHeaders(),
+          body: JSON.stringify(courseData)
+        });
+        if (res.ok) {
+          showToast(`Course successfully ${id ? 'updated' : 'created'}!`);
+          closeCourseModal();
+          fetchCourses();
+        } else {
+          const errData = await res.json();
+          showToast(errData.detail || 'Failed to save course.', 'error');
+        }
+      } catch (err) {
+        showToast('Connection error while saving course.', 'error');
+      }
+    });
+
+    async function editCourse(id) {
+      try {
+        const res = await fetch(`${API_BASE_URL}/courses/${id}`);
+        const c = await res.json();
+        if (!res.ok) throw new Error();
+
+        document.getElementById('courseId').value = c.id;
+        document.getElementById('cName').value = c.name;
+        document.getElementById('cDesc').value = c.description;
+        document.getElementById('cDuration').value = c.duration || '';
+        document.getElementById('cFees').value = c.fees || '';
+        document.getElementById('cEligibility').value = c.eligibility || '';
+        document.getElementById('cPrereq').value = c.prerequisites || '';
+        document.getElementById('cSalary').value = c.expected_salary || '';
+        document.getElementById('cRoadmap').value = c.learning_roadmap || '';
+        document.getElementById('cModules').value = c.modules || '';
+        document.getElementById('cTopics').value = c.topics_covered || '';
+        document.getElementById('cProjects').value = c.projects_included || '';
+        document.getElementById('cInternship').value = c.internship_details || '';
+        document.getElementById('cCert').value = c.certification || '';
+        document.getElementById('cPlacement').value = c.placement_support || '';
+        document.getElementById('cCareer').value = c.career_opportunities || '';
+        document.getElementById('cTools').value = c.tools_used || '';
+        document.getElementById('cSoftware').value = c.software_required || '';
+        document.getElementById('cIndustry').value = c.industry_applications || '';
+        document.getElementById('cFaqs').value = c.faqs || '';
+
+        document.getElementById('modalTitle').innerText = 'Edit Course';
+        document.getElementById('courseModal').classList.add('open');
+      } catch (err) {
+        showToast('Failed to load course details.', 'error');
+      }
+    }
+
+    async function deleteCourse(id) {
+      if (!confirm('Are you sure you want to delete this course from the catalog?')) return;
+      try {
+        const res = await fetch(`${API_BASE_URL}/courses/${id}`, {
+          method: 'DELETE',
+          headers: getHeaders()
+        });
+        if (res.ok) {
+          showToast('Course deleted.');
+          fetchCourses();
+        } else {
+          showToast('Failed to delete course.', 'error');
+        }
+      } catch (err) {
+        showToast('Network error while deleting course.', 'error');
+      }
+    }
+
+    function openCourseModal() {
+      document.getElementById('courseForm').reset();
+      document.getElementById('courseId').value = '';
+      document.getElementById('modalTitle').innerText = 'Add Course';
+      document.getElementById('courseModal').classList.add('open');
+    }
+
+    function closeCourseModal() {
+      document.getElementById('courseModal').classList.remove('open');
+    }
+
+    // --- WORKSHOP SECTION ---
+    async function fetchWorkshop() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/workshop`);
+        const ws = await res.json();
+        if (res.ok) {
+          document.getElementById('wsDate').value = ws.date || '';
+          document.getElementById('wsTime').value = ws.time || '';
+          document.getElementById('wsVenue').value = ws.venue || '';
+          document.getElementById('wsRegProc').value = ws.registration_process || '';
+          document.getElementById('wsEligibility').value = ws.eligibility || '';
+          document.getElementById('wsPhone').value = ws.contact_number || '';
+          document.getElementById('wsWhatsapp').value = ws.whatsapp_number || '';
+          document.getElementById('wsEmail').value = ws.email || '';
+          document.getElementById('wsMaps').value = ws.google_maps_location || '';
+          document.getElementById('wsWebsite').value = ws.website || '';
+        }
+      } catch (err) {
+        showToast('Failed to load workshop info.', 'error');
+      }
+    }
+
+    document.getElementById('workshopForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const wsData = {
+        date: document.getElementById('wsDate').value || null,
+        time: document.getElementById('wsTime').value || null,
+        venue: document.getElementById('wsVenue').value || null,
+        registration_process: document.getElementById('wsRegProc').value || null,
+        eligibility: document.getElementById('wsEligibility').value || null,
+        contact_number: document.getElementById('wsPhone').value || null,
+        whatsapp_number: document.getElementById('wsWhatsapp').value || null,
+        email: document.getElementById('wsEmail').value || null,
+        google_maps_location: document.getElementById('wsMaps').value || null,
+        website: document.getElementById('wsWebsite').value || null,
+      };
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/workshop`, {
+          method: 'PUT',
+          headers: getHeaders(),
+          body: JSON.stringify(wsData)
+        });
+        if (res.ok) {
+          showToast('Workshop settings updated successfully!');
+          fetchWorkshop();
+        } else {
+          showToast('Failed to update workshop settings.', 'error');
+        }
+      } catch (err) {
+        showToast('Connection error updating workshop settings.', 'error');
+      }
+    });
+
+    // --- DOCUMENTS SECTION ---
+    async function fetchDocuments() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/documents`, {
+          headers: getHeaders()
+        });
+        const docs = await res.json();
+        const tbody = document.querySelector('#documentsTable tbody');
+        tbody.innerHTML = '';
+        if (docs.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No documents indexed. Upload files above.</td></tr>';
+          return;
+        }
+        docs.forEach(d => {
+          const tr = document.createElement('tr');
+          const dDate = new Date(d.created_at).toLocaleDateString();
+          tr.innerHTML = `
+            <td><strong>${d.filename}</strong></td>
+            <td><code>${d.filetype}</code></td>
+            <td>${dDate}</td>
+            <td>${d.chunks_count} chunks</td>
+            <td>${d.uploaded_by || 'system'}</td>
+            <td>
+              <button class="btn-action delete" onclick="deleteDocument('${d.id}')">Remove</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        showToast('Failed to fetch indexed documents list.', 'error');
+      }
+    }
+
+    async function uploadFile(file) {
+      if (!file) return;
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      showToast(`Uploading and indexing "${file.name}"... Please wait.`);
+
+      const token = localStorage.getItem('admin_token');
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/upload`, {
+          method: 'POST',
+          headers: {
+            'Authorization': token ? `Bearer ${token}` : ''
+          },
+          body: formData
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showToast(`Successfully indexed ${data.filename}! (${data.chunks_indexed} chunks)`);
+          fetchDocuments();
+        } else {
+          showToast(data.detail || 'Upload failed. File might be invalid or too large.', 'error');
+        }
+      } catch (err) {
+        showToast('Network error during file upload.', 'error');
+      }
+      document.getElementById('fileUploadInput').value = '';
+    }
+
+    async function deleteDocument(id) {
+      if (!confirm('Are you sure you want to delete this document? The chatbot will lose all knowledge stored within this file.')) return;
+      try {
+        const res = await fetch(`${API_BASE_URL}/documents/${id}`, {
+          method: 'DELETE',
+          headers: getHeaders()
+        });
+        if (res.ok) {
+          showToast('Document cleared.');
+          fetchDocuments();
+        } else {
+          showToast('Failed to clear document.', 'error');
+        }
+      } catch (err) {
+        showToast('Network error deleting document.', 'error');
+      }
+    }
+
+    // Page Load check
+    window.onload = checkAuth;
+  </script>
+</body>
+</html>
