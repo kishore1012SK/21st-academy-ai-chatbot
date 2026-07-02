@@ -1,0 +1,25 @@
+# Query: ALLOWED_ORIGINS
+# ContextLines: 1
+
+5 results - 4 files
+
+README.md:
+  113    long random value in production — see the comment in `.env.example`).
+  114: - `ALLOWED_ORIGINS` in `.env` whitelists exactly which domains may call the
+  115    API — update it to your real domain(s) before going live.
+
+backend\.env.example:
+  27  # Comma-separated list of every origin the widget is embedded on.
+  28: ALLOWED_ORIGINS=http://localhost:5500,http://127.0.0.1:5500,https://21stacademy.in,https://www.21stacademy.in
+  29  
+
+backend\config.py:
+  49      # Add every domain the widget is embedded on.
+  50:    ALLOWED_ORIGINS: list = os.getenv(
+    "ALLOWED_ORIGINS",
+    "http://localhost:5500,http://127.0.0.1:5500,https://21stacademy.in,https://www.21stacademy.in,https://21st-academy-ai-chatbot-gcg7.vercel.app",
+)
+backend\main.py:
+  111      CORSMiddleware,
+  112:     allow_origins=settings.ALLOWED_ORIGINS,
+  113      allow_credentials=True,

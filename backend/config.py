@@ -48,9 +48,9 @@ class Settings:
     # Comma-separated list of origins allowed to call this API.
     # Add every domain the widget is embedded on.
     ALLOWED_ORIGINS: list = os.getenv(
-        "ALLOWED_ORIGINS",
-        "http://localhost:5500,http://127.0.0.1:5500,https://21stacademy.in,https://www.21stacademy.in",
-    ).split(",")
+    "ALLOWED_ORIGINS",
+    "http://localhost:5500,http://127.0.0.1:5500,https://21stacademy.in,https://www.21stacademy.in,https://21st-academy-ai-chatbot-gcg7.vercel.app",
+)
 
     # --- Rate limiting ---
     RATE_LIMIT_CHAT: str = os.getenv("RATE_LIMIT_CHAT", "20/minute")
